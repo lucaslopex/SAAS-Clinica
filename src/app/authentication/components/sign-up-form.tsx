@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 
 const registerSchema = z.object({
   name: z.string().trim().min(2, { message: "Nome de usuário é obrigatório" }),
@@ -33,10 +34,6 @@ const registerSchema = z.object({
     .min(8, { message: "Senha deve ter pelo menos 8 caracteres" }),
 });
 
-function onSubmit(values: z.infer<typeof registerSchema>) {
-  console.log(values);
-}
-
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -46,6 +43,15 @@ const SignUpForm = () => {
       password: "",
     },
   });
+
+  async function onSubmit(values: z.infer<typeof registerSchema>) {
+    await authClient.signUp.email({
+      email: values.email,
+      password: values.password,
+      name: values.name,
+      callbackURL: "/dashboard",
+    });
+  }
 
   return (
     <Card>
